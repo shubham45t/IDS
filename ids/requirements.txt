@@ -1,0 +1,6 @@
+# Network packet parsing
+scapy==2.5.0
+# HTTP Requests and interacting with AbuseIPDB
+requests==2.31.0
+# Environment variables management
+python-dotenv==1.0.0

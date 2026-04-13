@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps IDS Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="shield">🛡️</span> DevSecOps Sentinel
+        </div>
+        <div class="status">
+            <div class="indicator active"></div>
+            System Active
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- Top Row -->
+        <section class="widget-row top-metrics">
+            <div class="widget metric-card">
+                <h3>Total Alerts</h3>
+                <h1 id="total-alerts">0</h1>
+            </div>
+            <div class="widget metric-card critical-card">
+                <h3>Critical / Blocked</h3>
+                <h1 id="critical-alerts">0</h1>
+            </div>
+            <div class="widget table-container blocked-container">
+                <h3>Auto-Blocked IPs <span>(iptables)</span></h3>
+                <div class="table-scroll">
+                    <table id="blocked-table">
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="widget-row two-col">
+            <div class="widget chart-container">
+                <h3>Alerts by Severity</h3>
+                <div class="chart-wrapper doughnut-wrap">
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+            <div class="widget chart-container">
+                <h3>Attack Timeline</h3>
+                <div class="chart-wrapper">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Alerts Feed -->
+        <section class="widget full-width">
+            <h3>Live Security Events <span>(Real-time)</span></h3>
+            <div class="terminal-feed" id="live-feed">
+                <!-- Populated by JS via WebSocket -->
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
