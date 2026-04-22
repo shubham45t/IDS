@@ -1,5 +1,23 @@
-actions-runner/
+# Python
 __pycache__/
-logs/
 *.pyc
+
+# Env
 .env
+
+# Logs
+logs/
+*.json
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Runner
+actions-runner/
