@@ -13,15 +13,20 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v4
 
-      - name: Show current directory
+      - name: Debug current location
         run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           pwd
           ls -la
+          ls -la "$GITHUB_WORKSPACE"
 
       - name: Deploy IDS
         run: |
+          cd "$GITHUB_WORKSPACE"
           docker compose down || true
           docker compose up --build -d
 
       - name: Verify containers
-        run: docker ps
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          docker ps

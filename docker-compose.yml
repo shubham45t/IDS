@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ./backend
+    container_name: ids-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    depends_on:
+      - ids
+
+  dashboard:
+    image: nginx:alpine
+    container_name: ids-dashboard
+    ports:
+      - "80:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  ids:
+    build: ./ids
+    container_name: ids-engine
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - ./ids/.env
+    restart: unless-stopped
