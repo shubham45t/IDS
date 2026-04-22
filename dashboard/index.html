@@ -3,61 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevSecOps IDS Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>DevSecOps Sentinel — IDS Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- Animated Grid Background -->
+<div class="bg-grid"></div>
+<div class="bg-scanline"></div>
+<div class="bg-vignette"></div>
+
+<!-- Particle Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Boot Screen -->
+<div class="boot-screen" id="boot-screen">
+    <div class="boot-content">
+        <div class="boot-logo">🛡️</div>
+        <div class="boot-title">SENTINEL<span class="boot-version">v4.2.1</span></div>
+        <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
+        <div class="boot-status" id="boot-status">INITIALIZING THREAT DETECTION ENGINE...</div>
+    </div>
+</div>
+
+<!-- Main App -->
+<div class="app" id="app" style="display:none;">
+
+    <!-- Header -->
     <header class="header">
-        <div class="logo">
-            <span class="shield">🛡️</span> DevSecOps Sentinel
+        <div class="header-left">
+            <div class="logo-shield">🛡️</div>
+            <div class="logo-text">
+                <span class="logo-main">SENTINEL</span>
+                <span class="logo-sub">DEVSECOPS IDS PLATFORM</span>
+            </div>
         </div>
-        <div class="status">
-            <div class="indicator active"></div>
-            System Active
+
+        <div class="header-center">
+            <div class="threat-level-display">
+                <span class="tl-label">THREAT LEVEL</span>
+                <div class="tl-bars" id="threat-bars">
+                    <span class="tl-bar active"></span><span class="tl-bar active"></span>
+                    <span class="tl-bar active"></span><span class="tl-bar"></span><span class="tl-bar"></span>
+                </div>
+                <span class="tl-value" id="threat-level-text">ELEVATED</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="clock-wrap">
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="clock-date" id="clock-date">--/--/----</div>
+            </div>
+            <div class="status-pill active">
+                <span class="pulse-ring"></span>
+                <span class="pulse-dot"></span>
+                MONITORING
+            </div>
         </div>
     </header>
 
-    <main class="dashboard-container">
-        <section class="widget-row top-metrics">
-            <div class="widget metric-card">
-                <h3>Total Alerts</h3>
-                <h1 id="total-alerts">0</h1>
-            </div>
-            <div class="widget metric-card critical-card">
-                <h3>Critical / Blocked</h3>
-                <h1 id="critical-alerts">0</h1>
-            </div>
-            <div class="widget table-container blocked-container">
-                <h3>Auto-Blocked IPs <span>(iptables)</span></h3>
-                <div class="table-scroll">
-                    <table id="blocked-table"><tbody></tbody></table>
-                </div>
-            </div>
-        </section>
+    <!-- Top Banner Ticker -->
+    <div class="ticker-wrap">
+        <div class="ticker-label">LIVE INTEL</div>
+        <div class="ticker-track" id="ticker-track">
+            <span class="ticker-item">⚠ Port scan detected from 192.168.1.45</span>
+            <span class="ticker-item">🔴 Brute force attempt on SSH port 22</span>
+            <span class="ticker-item">✅ Auto-blocked: 10.0.0.78</span>
+            <span class="ticker-item">⚡ HTTP flood detected — 2,400 req/min</span>
+            <span class="ticker-item">🔍 Suspicious packet: malformed TCP header</span>
+            <span class="ticker-item">🚨 CRITICAL: Known malicious IP 45.33.32.156</span>
+        </div>
+    </div>
 
-        <section class="widget-row two-col">
-            <div class="widget chart-container">
-                <h3>Alerts by Severity</h3>
-                <div class="chart-wrapper doughnut-wrap">
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+
+        <!-- Row 1: KPI Cards -->
+        <div class="kpi-row">
+            <div class="kpi-card" id="kpi-total">
+                <div class="kpi-icon">📡</div>
+                <div class="kpi-data">
+                    <div class="kpi-value" id="total-alerts">0</div>
+                    <div class="kpi-label">TOTAL ALERTS</div>
+                    <div class="kpi-delta" id="kpi-delta-total">↑ +12 last hour</div>
+                </div>
+                <div class="kpi-ring"></div>
+            </div>
+            <div class="kpi-card critical" id="kpi-critical">
+                <div class="kpi-icon">🔴</div>
+                <div class="kpi-data">
+                    <div class="kpi-value" id="critical-alerts">0</div>
+                    <div class="kpi-label">CRITICAL / BLOCKED</div>
+                    <div class="kpi-delta red">⚠ Immediate attention</div>
+                </div>
+                <div class="kpi-ring"></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-icon">🛡️</div>
+                <div class="kpi-data">
+                    <div class="kpi-value" id="blocked-count">0</div>
+                    <div class="kpi-label">IPs BLOCKED</div>
+                    <div class="kpi-delta green">iptables enforced</div>
+                </div>
+                <div class="kpi-ring"></div>
+            </div>
+            <div class="kpi-card amber">
+                <div class="kpi-icon">⚡</div>
+                <div class="kpi-data">
+                    <div class="kpi-value" id="events-per-min">0</div>
+                    <div class="kpi-label">EVENTS / MIN</div>
+                    <div class="kpi-delta amber">Real-time rate</div>
+                </div>
+                <div class="kpi-ring"></div>
+            </div>
+        </div>
+
+        <!-- Row 2: Charts + Blocked IPs -->
+        <div class="mid-row">
+            <!-- Severity Donut -->
+            <div class="panel chart-panel">
+                <div class="panel-header">
+                    <span class="panel-title">SEVERITY BREAKDOWN</span>
+                    <span class="panel-badge">LIVE</span>
+                </div>
+                <div class="chart-wrap donut-wrap">
                     <canvas id="severityChart"></canvas>
+                    <div class="donut-center" id="donut-center">
+                        <div class="donut-total" id="donut-total">0</div>
+                        <div class="donut-sub">TOTAL</div>
+                    </div>
+                </div>
+                <div class="severity-legend">
+                    <div class="leg-item"><span class="leg-dot low"></span>LOW <span class="leg-val" id="leg-low">0</span></div>
+                    <div class="leg-item"><span class="leg-dot med"></span>MED <span class="leg-val" id="leg-med">0</span></div>
+                    <div class="leg-item"><span class="leg-dot high"></span>HIGH <span class="leg-val" id="leg-high">0</span></div>
+                    <div class="leg-item"><span class="leg-dot crit"></span>CRIT <span class="leg-val" id="leg-crit">0</span></div>
                 </div>
             </div>
-            <div class="widget chart-container">
-                <h3>Attack Timeline</h3>
-                <div class="chart-wrapper">
+
+            <!-- Timeline -->
+            <div class="panel chart-panel wide">
+                <div class="panel-header">
+                    <span class="panel-title">ATTACK TIMELINE</span>
+                    <div class="panel-controls">
+                        <button class="ctrl-btn active" onclick="filterTimeline('all')">ALL</button>
+                        <button class="ctrl-btn" onclick="filterTimeline('critical')">CRIT</button>
+                        <button class="ctrl-btn" onclick="filterTimeline('high')">HIGH</button>
+                    </div>
+                </div>
+                <div class="chart-wrap">
                     <canvas id="timelineChart"></canvas>
                 </div>
             </div>
-        </section>
 
-        <section class="widget full-width">
-            <h3>Live Security Events <span>(Real-time)</span></h3>
+            <!-- Blocked IPs -->
+            <div class="panel blocked-panel">
+                <div class="panel-header">
+                    <span class="panel-title">AUTO-BLOCKED IPs</span>
+                    <span class="panel-badge red">IPTABLES</span>
+                </div>
+                <div class="blocked-list" id="blocked-list">
+                    <div class="no-blocks">✅ No IPs blocked</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Attack Type Bars -->
+        <div class="attack-row">
+            <div class="panel attack-types-panel">
+                <div class="panel-header">
+                    <span class="panel-title">ATTACK VECTOR ANALYSIS</span>
+                </div>
+                <div class="attack-bars" id="attack-bars">
+                    <div class="atk-bar-item">
+                        <span class="atk-label">Port Scan</span>
+                        <div class="atk-track"><div class="atk-fill scan" style="width:72%"></div></div>
+                        <span class="atk-pct">72%</span>
+                    </div>
+                    <div class="atk-bar-item">
+                        <span class="atk-label">Brute Force</span>
+                        <div class="atk-track"><div class="atk-fill brute" style="width:55%"></div></div>
+                        <span class="atk-pct">55%</span>
+                    </div>
+                    <div class="atk-bar-item">
+                        <span class="atk-label">SSH Attack</span>
+                        <div class="atk-track"><div class="atk-fill ssh" style="width:38%"></div></div>
+                        <span class="atk-pct">38%</span>
+                    </div>
+                    <div class="atk-bar-item">
+                        <span class="atk-label">HTTP Flood</span>
+                        <div class="atk-track"><div class="atk-fill http" style="width:29%"></div></div>
+                        <span class="atk-pct">29%</span>
+                    </div>
+                    <div class="atk-bar-item">
+                        <span class="atk-label">Malicious IP</span>
+                        <div class="atk-track"><div class="atk-fill mal" style="width:18%"></div></div>
+                        <span class="atk-pct">18%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geo Heatmap placeholder -->
+            <div class="panel geo-panel">
+                <div class="panel-header">
+                    <span class="panel-title">GEO ORIGIN HEATMAP</span>
+                </div>
+                <div class="geo-grid" id="geo-grid">
+                    <!-- filled by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: Live Feed -->
+        <div class="panel feed-panel">
+            <div class="panel-header">
+                <span class="panel-title">LIVE SECURITY EVENT STREAM</span>
+                <div class="feed-controls">
+                    <button class="ctrl-btn active" id="btn-all" onclick="filterFeed('all')">ALL</button>
+                    <button class="ctrl-btn" id="btn-crit" onclick="filterFeed('critical')">CRITICAL</button>
+                    <button class="ctrl-btn" id="btn-high" onclick="filterFeed('high')">HIGH</button>
+                    <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">⏸ PAUSE</button>
+                </div>
+            </div>
             <div class="terminal-feed" id="live-feed"></div>
-        </section>
-    </main>
+        </div>
 
-    <script src="app.js"></script>
+    </main>
+</div>
+
+<!-- Alert Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
